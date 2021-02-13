@@ -1,0 +1,4 @@
+name: MinecraftPlugin
+version: ${project.version}
+main: jp.pro.daylight.minecraftplugin.MinecraftPlugin
+api-version: 1.13
