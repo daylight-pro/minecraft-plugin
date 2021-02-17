@@ -234,14 +234,14 @@ public class WerewolfManager{
         restRole.setItemMeta(meta);
         ret.setItem(26,restRole);
         int invind = 0;
-        for(int i = 0;i < players.size();i++){
-            if(!players.get(i).pl.equals(pl)){
+        for (WerewolfPlayer player : players) {
+            if (!player.pl.equals(pl)) {
                 ItemStack p = new ItemStack(Material.PLAYER_HEAD);
-                SkullMeta metap = (SkullMeta)p.getItemMeta();
-                metap.setOwningPlayer(players.get(i).pl);
-                metap.setDisplayName(players.get(i).pl.getDisplayName());
+                SkullMeta metap = (SkullMeta) p.getItemMeta();
+                metap.setOwningPlayer(player.pl);
+                metap.setDisplayName(player.pl.getDisplayName());
                 p.setItemMeta(metap);
-                ret.setItem(invind,p);
+                ret.setItem(invind, p);
                 invind++;
             }
         }
@@ -256,17 +256,17 @@ public class WerewolfManager{
         notChange.setItemMeta(meta);
         ret.setItem(26,notChange);
         int invind = 0;
-        for(int i = 0;i < players.size();i++){
-            if(!players.get(i).pl.equals(pl)){
+        for (WerewolfPlayer player : players) {
+            if (!player.pl.equals(pl)) {
                 ItemStack p = new ItemStack(Material.PLAYER_HEAD);
-                SkullMeta metap = (SkullMeta)p.getItemMeta();
-                metap.setOwningPlayer(players.get(i).pl);
-                metap.setDisplayName(players.get(i).pl.getDisplayName());
+                SkullMeta metap = (SkullMeta) p.getItemMeta();
+                metap.setOwningPlayer(player.pl);
+                metap.setDisplayName(player.pl.getDisplayName());
                 p.setItemMeta(metap);
-                ret.setItem(invind,p);
+                ret.setItem(invind, p);
                 invind++;
-            }else{
-                plg.getLogger().info(players.get(i).role.getClass().toString());
+            } else {
+                plg.getLogger().info(player.role.getClass().toString());
             }
         }
         return ret;
@@ -296,14 +296,14 @@ public class WerewolfManager{
         Player pl = wpl.pl;
         Inventory ret = Bukkit.createInventory(pl,27,"[WW]投票したい人をクリックしてください。");
         int invind = 0;
-        for(int i = 0;i < players.size();i++){
-            if(!players.get(i).pl.equals(pl)){
+        for (WerewolfPlayer player : players) {
+            if (!player.pl.equals(pl)) {
                 ItemStack wolf = new ItemStack(Material.PLAYER_HEAD);
-                SkullMeta metaWolf = (SkullMeta)wolf.getItemMeta();
-                metaWolf.setOwningPlayer(players.get(i).pl);
-                metaWolf.setDisplayName(players.get(i).pl.getDisplayName());
+                SkullMeta metaWolf = (SkullMeta) wolf.getItemMeta();
+                metaWolf.setOwningPlayer(player.pl);
+                metaWolf.setDisplayName(player.pl.getDisplayName());
                 wolf.setItemMeta(metaWolf);
-                ret.setItem(invind,wolf);
+                ret.setItem(invind, wolf);
                 invind++;
             }
         }
@@ -327,10 +327,10 @@ public class WerewolfManager{
     }
     public void startNight(){
         turn = Turn.Night;
-        for(int i = 0; i < players.size();i++){
-            openNightInv(players.get(i));
+        for (WerewolfPlayer player : players) {
+            openNightInv(player);
         }
-        new MyTimer(plg,15,true,null).runTask(plg);
+        new MyTimer(plg,15,true).runTask(plg);
     }
 
     public void startNoon(){
@@ -341,19 +341,19 @@ public class WerewolfManager{
         item.setItemMeta(meta);
         String targetName = thiefTarget==null?"":thiefTarget.pl.getDisplayName();
         Role r = thiefTarget==null?Role.Not_assinged:thiefTarget.role;
-        for(int i = 0; i < players.size();i++){
-            players.get(i).pl.getInventory().addItem(item);
-            players.get(i).moved = false;
+        for (WerewolfPlayer player : players) {
+            player.pl.getInventory().addItem(item);
+            player.moved = false;
             if (thiefTarget != null) {
-                if (players.get(i).role == Role.Thief) {
-                    players.get(i).role = r;
-                    thiefTarget = players.get(i);
-                } else if (players.get(i).pl.equals(targetName)) {
-                    players.get(i).role = Role.Thief;
+                if (player.role == Role.Thief) {
+                    player.role = r;
+                    thiefTarget = player;
+                } else if (player.pl.getDisplayName().equals(targetName)) {
+                    player.role = Role.Thief;
                 }
             }
         }
-        new MyTimer(plg,180,true,null).runTask(plg);
+        new MyTimer(plg,180,true).runTask(plg);
     }
 
     public void next() {
@@ -373,9 +373,12 @@ public class WerewolfManager{
         Iterator<KeyedBossBar> it  =Bukkit.getBossBars();
         while(it.hasNext()){
             KeyedBossBar bar = it.next();
+            plg.getLogger().info(bar.getTitle());
             bar.removeAll();
         }
-
+        if(plg.boss != null){
+            plg.boss.removeAll();
+        }
     }
 }
 

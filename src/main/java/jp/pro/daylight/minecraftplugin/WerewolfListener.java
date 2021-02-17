@@ -81,6 +81,7 @@ public class WerewolfListener implements Listener {
     @EventHandler
     public void inventoryClick(InventoryClickEvent e){
         Player pl = (Player)e.getWhoClicked();
+        if(e.getCurrentItem() == null)return;
         for(int i = 0; i < plg.wm.players.size();i++){
             WerewolfPlayer wpl = plg.wm.players.get(i);
             if(!wpl.pl.equals(pl))continue;

@@ -18,6 +18,7 @@ import java.util.List;
 public final class MinecraftPlugin extends JavaPlugin {
 
     WerewolfManager wm;
+    BossBar boss;
 
     @Override
     public void onEnable() {
@@ -25,6 +26,7 @@ public final class MinecraftPlugin extends JavaPlugin {
         getLogger().info("プラグインが有効化されました。");
         wm = new WerewolfManager(this);
         new WerewolfListener(this);
+        boss = null;
     }
 
     @Override
@@ -81,7 +83,6 @@ public final class MinecraftPlugin extends JavaPlugin {
 class MyTimer extends BukkitRunnable {
     private final MinecraftPlugin plg;
     private int count;
-    public BossBar boss;
 
     /**
      * コンストラクタ
@@ -90,24 +91,22 @@ class MyTimer extends BukkitRunnable {
      */
     public MyTimer(MinecraftPlugin plg_, int count_)
     {
-        this(plg_,count_,false,null);
-        boss = null;
+        this(plg_,count_,false);
+        plg_.boss = null;
     }
-    public MyTimer(MinecraftPlugin plg_, int count_,boolean isBoss,@Nullable BossBar boss_){
+    public MyTimer(MinecraftPlugin plg_, int count_,boolean isBoss){
         plg = plg_;
         count = count_;
         if(isBoss){
-            if(boss_ != null){
-                boss = boss_;
-            }else {
+            if(plg.boss == null){
                 if (plg.wm.turn == Turn.Night) {
-                    boss = Bukkit.createBossBar(String.format("夜時間終了まで%02d:%02d", count / 60, count % 60), BarColor.PURPLE, BarStyle.SOLID);
+                    plg.boss = Bukkit.createBossBar(String.format("夜時間終了まで%02d:%02d", count / 60, count % 60), BarColor.PURPLE, BarStyle.SOLID);
                 } else if(plg.wm.turn == Turn.Noon){
-                    boss = Bukkit.createBossBar(String.format("投票終了まで%02d:%02d", count / 60, count % 60), BarColor.YELLOW, BarStyle.SOLID);
+                    plg.boss = Bukkit.createBossBar(String.format("投票終了まで%02d:%02d", count / 60, count % 60), BarColor.YELLOW, BarStyle.SOLID);
                 }
-                boss.setProgress(1.0);
+                plg.boss.setProgress(1.0);
                 for (int i = 0; i < plg.wm.players.size(); i++) {
-                    boss.addPlayer(plg.wm.players.get(i).pl);
+                    plg.boss.addPlayer(plg.wm.players.get(i).pl);
                 }
             }
         }
@@ -123,9 +122,9 @@ class MyTimer extends BukkitRunnable {
 
         if (count >= 0) {
             if(plg.wm.turn == Turn.Night){
-                if(boss != null) {
-                    boss.setProgress((double) count / 15.0);
-                    boss.setTitle(String.format("夜時間終了まで%02d:%02d", count / 60, count % 60));
+                if(plg.boss != null) {
+                    plg.boss.setProgress((double) count / 15.0);
+                    plg.boss.setTitle(String.format("夜時間終了まで%02d:%02d", count / 60, count % 60));
                     if(count <= 2){
                         for (int i = 0; i < plg.wm.players.size(); i++) {
                             plg.wm.players.get(i).pl.playSound(plg.wm.players.get(i).pl.getLocation(),Sound.ENTITY_ARROW_HIT_PLAYER,1,1);
@@ -134,9 +133,9 @@ class MyTimer extends BukkitRunnable {
                 }
             }
             if(plg.wm.turn == Turn.Noon){
-                if(boss != null) {
-                    boss.setProgress((double) count / 180.0);
-                    boss.setTitle(String.format("投票終了まで%02d:%02d", count / 60, count % 60));
+                if(plg.boss != null) {
+                    plg.boss.setProgress((double) count / 180.0);
+                    plg.boss.setTitle(String.format("投票終了まで%02d:%02d", count / 60, count % 60));
                     if(count <= 4){
                         for (int i = 0; i < plg.wm.players.size(); i++) {
                             plg.wm.players.get(i).pl.playSound(plg.wm.players.get(i).pl.getLocation(),Sound.ENTITY_ARROW_HIT_PLAYER,1,1);
@@ -144,11 +143,11 @@ class MyTimer extends BukkitRunnable {
                     }
                 }
             }
-            new MyTimer(plg, count, boss != null,boss).runTaskLater(plg, 20);
+            new MyTimer(plg, count, plg.boss != null).runTaskLater(plg, 20);
         }else{
-            if(boss != null){
-                boss.removeAll();
-                boss = null;
+            if(plg.boss != null){
+                plg.boss.removeAll();
+                plg.boss = null;
             }
             plg.wm.next();
         }
